@@ -1,0 +1,82 @@
+#define Button1 12
+#define Button2 11
+#define Button3 10
+#define Green 2
+#define Yellow 3
+#define Red 4
+
+
+
+void setup() {
+  pinMode(Button3, INPUT_PULLUP);
+  pinMode(Button2, INPUT);
+  pinMode(Button1, INPUT);
+  pinMode(Green, OUTPUT);
+  pinMode(Yellow, OUTPUT);
+  pinMode(Red, OUTPUT);
+ 
+  Serial.begin(9600);
+}
+int b;
+int lasta=1;
+int lastb=1;
+int lastc=0;
+long GreenTime;
+long RedTime;
+long YellowTime = -2000;
+int Delay = 3000;
+
+void loop() {
+  //Green
+  
+  if (digitalRead(Red) == 0) {//ไฟแดงดับอยู่
+    int a = digitalRead(Button3);
+    if (a == LOW && lasta == HIGH)//ถ้ามีการกดปุ่ม3
+    {
+      delay(30); //Debounce
+      digitalWrite(Green, !digitalRead(Green));
+      GreenTime = millis();
+    }
+    lasta = a;
+  }
+  if (digitalRead(Green) == HIGH && millis() - GreenTime > Delay)//ไฟเปิดเกิน3วิ
+  {
+    digitalWrite(Green, LOW);//ให้ปิดไฟ
+  }
+
+  //Red
+  
+  int c = digitalRead(Button1);
+  
+  if (c == HIGH && lastc == LOW)
+  {
+    delay(30);//Debounce
+    digitalWrite(Red, !digitalRead(Red));
+    RedTime = millis();
+  }
+  lastc = c;
+  
+  if (digitalRead(Red) == HIGH && millis() - RedTime > Delay)
+  {
+    digitalWrite(Red, LOW);
+  }
+
+  //Yellow
+  if (digitalRead(Green) == LOW && digitalRead(Red) == LOW)//ไฟเขียวแดงดับอยู่
+  {
+    b = digitalRead(Button2);
+    if (b == LOW && lastb == HIGH)
+    {
+      delay(30);//Debounce
+      YellowTime = millis();
+      while(millis()-YellowTime<2000){//ไฟกระพริบ2วิ
+        digitalWrite(Yellow, HIGH);
+        delay(500);
+        digitalWrite(Yellow,LOW);
+        delay(500);
+      }
+    }
+  }
+  lastb = b;
+  
+}
